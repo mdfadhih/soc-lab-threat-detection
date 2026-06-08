@@ -1,0 +1,42 @@
+// ============================================================
+// Rule 4: Suspicious PowerShell Execution
+// MITRE ATT&CK: T1059.001 - Command and Scripting: PowerShell
+// Severity: High
+// Author: Mohamed Fadhih
+// Description: Detects PowerShell execution with suspicious
+//              flags commonly used in attacks
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4688              // Process creation
+| where NewProcessName has "powershell"
+| where CommandLine has_any (
+    "bypass",
+    "hidden",
+    "IEX",
+    "Invoke-Expression",
+    "DownloadString",
+    "WebClient",
+    "Net.WebClient",
+    "-EncodedCommand",
+    "FromBase64String"
+  )
+| project
+    TimeGenerated,
+    Computer,
+    Account,
+    NewProcessName,
+    CommandLine
+| extend
+    MITRE_TTP = "T1059.001 - PowerShell",
+    Severity = "High",
+    Tactic = "Execution",
+    Remediation = "Investigate PowerShell command, check for downloaded payloads"
+
+// Tuning notes:
+// - Requires command line logging enabled via registry:
+//   ProcessCreationIncludeCmdLine_Enabled = 1
+// - Consider enabling PowerShell Script Block Logging
+//   for deeper visibility into encoded commands
+// - Whitelist known admin scripts by hash or path

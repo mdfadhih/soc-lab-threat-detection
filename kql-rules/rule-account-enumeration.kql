@@ -1,0 +1,36 @@
+// ============================================================
+// Rule 3: Account & Group Enumeration
+// MITRE ATT&CK: T1087 - Account Discovery
+// Severity: Medium
+// Author: Mohamed Fadhih
+// Description: Detects rapid enumeration of local users
+//              and groups via command line tools
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4688              // Process creation
+| where CommandLine has_any (
+    "net user",
+    "net localgroup",
+    "whoami",
+    "systeminfo",
+    "wmic useraccount"
+  )
+| summarize
+    EnumCount = count(),
+    Commands = make_set(CommandLine),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+  by Computer, Account, bin(TimeGenerated, 5m)
+| where EnumCount > 2               // 3+ enumeration commands in 5 mins
+| extend
+    MITRE_TTP = "T1087 - Account Discovery",
+    Severity = "Medium",
+    Tactic = "Discovery",
+    Remediation = "Investigate user running enumeration commands"
+
+// Tuning notes:
+// - Threshold of 3 commands in 5 mins catches bursts
+// - Whitelist known admin accounts running scheduled scripts
+// - Consider correlating with other discovery techniques

@@ -1,0 +1,36 @@
+// ============================================================
+// Rule 2: Suspicious Scheduled Task Creation
+// MITRE ATT&CK: T1053 - Scheduled Task/Job
+// Severity: High
+// Author: Mohamed Fadhih
+// Description: Detects scheduled task creation involving
+//              suspicious executables or commands
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID in (4688, 4698)      // Process creation + Task created
+| where CommandLine has_any (
+    "schtasks", "powershell", "cmd.exe",
+    "wscript", "cscript", "mshta",
+    "DownloadString", "IEX", "hidden"
+  )
+| project
+    TimeGenerated,
+    Computer,
+    Account,
+    EventID,
+    CommandLine,
+    NewProcessName
+| extend
+    MITRE_TTP = "T1053 - Scheduled Task",
+    Severity = "High",
+    Tactic = "Persistence",
+    Remediation = "Review scheduled tasks, remove unauthorised entries"
+
+// Tuning notes:
+// - EventID 4698 requires Task Scheduler audit policy enabled:
+//   auditpol /set /subcategory:"Task Scheduler" /success:enable
+// - EventID 4688 requires process creation auditing + command line logging:
+//   reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" 
+//   /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f

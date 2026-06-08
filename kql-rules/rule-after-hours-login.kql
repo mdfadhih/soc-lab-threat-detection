@@ -1,0 +1,38 @@
+// ============================================================
+// Rule 5: After-Hours Login Detection
+// MITRE ATT&CK: T1078 - Valid Accounts
+// Severity: Medium
+// Author: Mohamed Fadhih
+// Description: Detects successful network logons outside
+//              business hours (07:00 - 19:00 AEST)
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4624              // Successful logon
+| where LogonType == 3              // Network logon (Azure VM)
+                                    // Note: Azure routes RDP as Type 3
+                                    // Standard RDP = Type 10
+| extend HourAEST = datetime_part(
+    "Hour",
+    datetime_add("hour", 10, TimeGenerated)  // UTC+10 for AEST
+  )
+| where HourAEST < 7 or HourAEST > 19       // Outside business hours
+| project
+    TimeGenerated,
+    Computer,
+    TargetUserName,
+    IpAddress,
+    LogonType,
+    HourAEST
+| extend
+    MITRE_TTP = "T1078 - Valid Accounts",
+    Severity = "Medium",
+    Tactic = "Defense Evasion / Persistence",
+    Remediation = "Verify login with user, check for concurrent sessions"
+
+// Tuning notes:
+// - Business hours set to 07:00-19:00 AEST (UTC+10)
+// - Adjust timezone offset for AEDT (UTC+11): change 10 to 11
+// - LogonType 3 used for Azure VM (network logon)
+// - Whitelist known after-hours admin accounts

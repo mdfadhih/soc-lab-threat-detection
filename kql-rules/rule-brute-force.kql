@@ -1,0 +1,30 @@
+// ============================================================
+// Rule 1: Multiple Failed Login Attempts (Brute Force)
+// MITRE ATT&CK: T1110 - Brute Force
+// Severity: High
+// Author: Mohamed Fadhih
+// Description: Detects 5+ failed logins from same source
+//              within a 5-minute window
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(5m)
+| where EventID == 4625              // Failed logon
+| summarize
+    FailedAttempts = count(),
+    AccountNames = make_set(TargetUserName),
+    FirstAttempt = min(TimeGenerated),
+    LastAttempt = max(TimeGenerated)
+  by WorkstationName, IpAddress
+| where FailedAttempts >= 5          // Threshold: 5 attempts
+| extend
+    MITRE_TTP = "T1110 - Brute Force",
+    Severity = "High",
+    Tactic = "Credential Access",
+    Remediation = "Block source IP, review account lockout policy"
+
+// Tuning notes:
+// - Threshold set to 5 to reduce false positives from 
+//   legitimate failed logins (typos, expired passwords)
+// - Adjust threshold based on environment baseline
+// - Consider whitelisting known admin IPs
