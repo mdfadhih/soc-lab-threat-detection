@@ -122,7 +122,7 @@ See `/kql-rules` folder for all 5 complete rules with full comments and tuning n
 
 - **Method:** RDP login recorded during off-hours simulation
 - **Detection:** EventID 4624 — LogonType 3, HourAEST: 15, IpAddress: 203.123.65.164
-- **Result:** Login captured with AEST timezone calculation confirmed
+- **Result:** Logon event captured and AEST conversion validated (HourAEST: 15, within business hours, so this run tested the time logic and did not trigger the after-hours rule)
 
 ---
 
@@ -210,7 +210,7 @@ reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /
 
 ## Key Findings & Observations
 
-- **Security events generated and analysed across 5 simulations
+- **Security events generated and analysed across 5 simulations**
 - **5 MITRE ATT&CK techniques** successfully detected with custom KQL rules
 - **EventID 4688 command line auditing** requires explicit registry key — not enabled by default
 - **Azure Monitor Agent (AMA)** used over legacy MMA — per Microsoft recommendation
