@@ -233,7 +233,7 @@ reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /
 - Master of Cybersecurity — Monash University (Group of Eight)
 - AWS Certified Cloud Practitioner
 - Google Cybersecurity Professional Certificate
-- SOC Operations Intern — Digillium (500+ alerts triaged, 20% false positive reduction)
+- SOC Operations Intern — Digillium
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://linkedin.com/in/fadhih)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green)](http://my-portfolio-seven-tawny-79.vercel.app/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green)](https://cybersecurity-portfolio-drab.vercel.app/)
