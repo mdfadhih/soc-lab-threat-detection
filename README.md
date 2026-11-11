@@ -210,7 +210,7 @@ reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /
 
 ## Key Findings & Observations
 
-- **500+ security events** generated and analysed during lab
+- **Security events generated and analysed across 5 simulations
 - **5 MITRE ATT&CK techniques** successfully detected with custom KQL rules
 - **EventID 4688 command line auditing** requires explicit registry key — not enabled by default
 - **Azure Monitor Agent (AMA)** used over legacy MMA — per Microsoft recommendation
